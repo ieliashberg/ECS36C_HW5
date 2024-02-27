@@ -39,6 +39,7 @@ class AVLBinaryTreeNode<T>(val data: T) {
                 rightSubtree: AVLBinaryTreeNode<T>?) : this(data){
         left = leftSubtree
         right = rightSubtree
+        calculateHeightAndSize()
     }
 
     /*
@@ -116,12 +117,12 @@ class AVLBinaryTreeNode<T>(val data: T) {
     fun rebalance(): AVLBinaryTreeNode<T> {
         if (balance > 1) {
             if((right?.balance ?: 0) < 0) { //if right child is left heavy
-                right!!.rotateRight()
+                right = right!!.rotateRight()
             }
             return rotateLeft()
         } else if (balance < -1) {
             if((left?.balance ?: 0) > 0) {
-                left!!.rotateLeft()
+                left = left!!.rotateLeft()
             }
             return rotateRight()
         }
@@ -304,7 +305,7 @@ class OrderedAVLTree<T: Comparable<T>> {
             if(at.left == null) return Pair(at.right, at.data)
             val (tree, newData) = removeSmallest(at.left!!)
             at.left = tree
-            return Pair(at, newData)
+            return Pair(at.rebalance(), newData)
         }
         fun removeInternal(at: AVLBinaryTreeNode<T>): AVLBinaryTreeNode<T>?{
             if (at.data == data) {
@@ -312,12 +313,12 @@ class OrderedAVLTree<T: Comparable<T>> {
                 else if (at.right == null) return at.left
                 else {
                     val (right, newData) = removeSmallest(at.right!!)
-                    return AVLBinaryTreeNode(newData, at.left, right)
+                    return AVLBinaryTreeNode(newData, at.left, right).rebalance()
                 }
             }
             else if (data < at.data) at.left = removeInternal(at.left!!)
             else at.right = removeInternal(at.right!!)
-            return at
+            return at.rebalance()
         }
         root = removeInternal(root!!)
     }

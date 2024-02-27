@@ -11,12 +11,24 @@ fun <T: Comparable <T>> AVLBinaryTreeNode<T>.wellFormed(
     visited: MutableSet<AVLBinaryTreeNode<T>> = mutableSetOf<AVLBinaryTreeNode<T>>()): Boolean {
     val isRoot = visited.size == 0
 
-    if (this in visited) return false
-    if (balance > 1 || balance < -1) return false
+
+    if (this in visited) {
+        println("fail1")
+        return false
+    }
+    if (balance > 1 || balance < -1){
+        println(balance)
+        println(this.toString())
+        println("fail2")
+        return false
+    }
     visited.add(this)
     val children =  (left?.wellFormed(initialValue, visited) ?: true) &&
             (right?.wellFormed(initialValue, visited) ?: true)
-    if (!children) return false
+    if (!children) {
+        println("fail3")
+        return false
+    }
     val lastBalance = balance
     val lastHeight = height
     val lastSize = size
@@ -24,11 +36,17 @@ fun <T: Comparable <T>> AVLBinaryTreeNode<T>.wellFormed(
     // have changed here.
     this.left = this.left
     this.right = this.right
-    if (height != lastHeight || size != lastSize || lastBalance != balance) return false
+    if (height != lastHeight || size != lastSize || lastBalance != balance) {
+        println("fail4")
+        return false
+    }
     if (isRoot) {
         var a = initialValue
         for (b in this.inOrderTraversal()) {
-            if (a > b) return false;
+            if (a > b){
+                println("fail5")
+                return false
+            };
             a = b
         }
     }
@@ -56,6 +74,16 @@ class AVLBinaryTreeNodeTest {
 
 
     @Test
+    fun testNew() {
+        val test = OrderedAVLTree<Int>()
+        test.insert(6)
+        test.insert(8)
+        test.insert(7)
+        println(test.toString())
+    }
+
+
+    @Test
     fun testTreeCode(){
         for(x in 0..<100){
             for(y in 0..<10){
@@ -78,9 +106,19 @@ class AVLBinaryTreeNodeTest {
 
                 }
                 testData.shuffle()
+                /*println("---")
+                for (x in 0 until testData.size) {
+                    print(testData[x])
+                    print(" ")
+
+                }
+                 */
+                println()
                 for (data in testData){
                     assert(data in testTree)
+                    //println("data: $data toString: ${testTree.toString()}")
                     testTree.remove(data)
+                    //println(testTree.toString())
                     assert(data !in testTree)
                     assert(testTree.root?.wellFormed(-1) ?: true)
                 }
